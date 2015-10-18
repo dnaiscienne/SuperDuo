@@ -11,10 +11,11 @@ android {
         versionCode 1
         versionName "1.0"
     }
-
-    jacoco {
-        version = '0.6.2.201302030002'
-    }
+//    For some reason this is causing a NetworkOnMainThreadException. Possibly a known issue as suggested by:
+//    https://github.com/jacoco/jacoco/issues/113
+//    jacoco {
+//        version = '0.6.2.201302030002'
+//    }
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
@@ -22,12 +23,12 @@ android {
     }
     buildTypes {
         release {
-            testCoverageEnabled = true
+//            testCoverageEnabled = true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
-        debug{
-            testCoverageEnabled = true
-        }
+//        debug{
+//            testCoverageEnabled = true
+//        }
 
     }
     lintOptions {

@@ -55,10 +55,10 @@
             android:layout_height="wrap_content"
             android:id="@+id/bookSubTitle"
             android:layout_marginTop="10dp"
-            android:layout_below="@+id/bookTitle"
+            android:layout_below="@id/bookTitle"
             android:maxLines="3"
             android:ellipsize="end"
-            android:layout_alignLeft="@+id/eancontainer"
+            android:layout_alignLeft="@id/eancontainer"
             />
 
         <TextView
@@ -68,9 +68,9 @@
             android:gravity="end"
             android:textSize="@dimen/small_fontsize"
             android:layout_marginTop="20dp"
-            android:layout_below="@+id/bookSubTitle"
-            android:layout_alignRight="@+id/eancontainer"
-            android:layout_alignEnd="@+id/eancontainer"
+            android:layout_below="@id/bookSubTitle"
+            android:layout_alignRight="@id/eancontainer"
+            android:layout_alignEnd="@id/eancontainer"
             />
 
         <ImageView
@@ -78,9 +78,9 @@
             android:layout_height="wrap_content"
             android:id="@+id/bookCover"
             android:contentDescription="@string/book_cover"
-            android:layout_alignTop="@+id/authors"
-            android:layout_alignLeft="@+id/eancontainer"
-            android:layout_alignStart="@+id/eancontainer"/>
+            android:layout_alignTop="@id/authors"
+            android:layout_alignLeft="@id/eancontainer"
+            android:layout_alignStart="@id/eancontainer"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -89,8 +89,8 @@
             android:textSize="@dimen/small_fontsize"
             android:layout_below="@+id/bookCover"
             android:layout_marginTop="20dp"
-            android:layout_alignLeft="@+id/eancontainer"
-            android:layout_alignStart="@+id/eancontainer"/>
+            android:layout_alignLeft="@id/eancontainer"
+            android:layout_alignStart="@id/eancontainer"/>
 
         <LinearLayout
             android:orientation="horizontal"
