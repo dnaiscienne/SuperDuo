@@ -11,8 +11,10 @@ android {
         versionCode 1
         versionName "1.0"
     }
-//    For some reason this is causing a NetworkOnMainThreadException. Possibly a known issue as suggested by:
-//    https://github.com/jacoco/jacoco/issues/113
+    /**
+     * For some reason this is causing a NetworkOnMainThreadException. Possibly a known issue as suggested by:
+     * https://github.com/jacoco/jacoco/issues/113
+     * */
 //    jacoco {
 //        version = '0.6.2.201302030002'
 //    }
@@ -38,5 +40,5 @@ android {
 
 dependencies {
     compile 'com.android.support:appcompat-v7:21.0.3'
-
+    compile 'com.github.bumptech.glide:glide:3.6.1'
 }
