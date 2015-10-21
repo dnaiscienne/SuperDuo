@@ -3,7 +3,6 @@ package it.jaschke.alexandria.services;
 import android.app.IntentService;
 import android.content.ContentValues;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -46,18 +45,17 @@ public class BookService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         if (intent != null) {
             final String action = intent.getAction();
+            final String ean = intent.getStringExtra(EAN);
             if (FETCH_BOOK.equals(action)) {
-                final String ean = intent.getStringExtra(EAN);
                 fetchBook(ean);
             } else if (DELETE_BOOK.equals(action)) {
-                final String ean = intent.getStringExtra(EAN);
                 deleteBook(ean);
             }
         }
     }
 
     /**
-     * Handle action Foo in the provided background thread with the provided
+     * Handle action deleteBook in the provided background thread with the provided
      * parameters.
      */
     private void deleteBook(String ean) {
@@ -76,20 +74,20 @@ public class BookService extends IntentService {
             return;
         }
 
-        Cursor bookEntry = getContentResolver().query(
-                AlexandriaContract.BookEntry.buildBookUri(Long.parseLong(ean)),
-                null, // leaving "columns" null just returns all the columns.
-                null, // cols for "where" clause
-                null, // values for "where" clause
-                null  // sort order
-        );
-
-        if(bookEntry.getCount()>0){
-            bookEntry.close();
-            return;
-        }
-
-        bookEntry.close();
+//        Cursor bookEntry = getContentResolver().query(
+//                AlexandriaContract.BookEntry.buildBookUri(Long.parseLong(ean)),
+//                null, // leaving "columns" null just returns all the columns.
+//                null, // cols for "where" clause
+//                null, // values for "where" clause
+//                null  // sort order
+//        );
+//
+//        if(bookEntry.getCount()>0){
+//            bookEntry.close();
+//            return;
+//        }
+//
+//        bookEntry.close();
 
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
@@ -128,9 +126,14 @@ public class BookService extends IntentService {
                 return;
             }
             bookJsonString = buffer.toString();
-        } catch (Exception e) {
+            getBookDataFromJson(bookJsonString, ean);
+        } catch (IOException e) {
             Log.e(LOG_TAG, "Error ", e);
-        } finally {
+        } catch(JSONException e){
+            Log.e(LOG_TAG, e.getMessage(), e);
+            e.printStackTrace();
+        }
+        finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();
             }
@@ -144,6 +147,10 @@ public class BookService extends IntentService {
 
         }
 
+        return;
+    }
+
+    private void getBookDataFromJson(String bookJsonString, String ean) throws JSONException{
         final String ITEMS = "items";
 
         final String VOLUME_INFO = "volumeInfo";
@@ -168,7 +175,7 @@ public class BookService extends IntentService {
                 return;
             }
 
-            JSONObject bookInfo = ((JSONObject) bookArray.get(0)).getJSONObject(VOLUME_INFO);
+            JSONObject bookInfo = bookArray.getJSONObject(0).getJSONObject(VOLUME_INFO);
 
             String title = bookInfo.getString(TITLE);
 
@@ -198,6 +205,7 @@ public class BookService extends IntentService {
 
         } catch (JSONException e) {
             Log.e(LOG_TAG, "Error ", e);
+            e.printStackTrace();
         }
     }
 
@@ -212,22 +220,22 @@ public class BookService extends IntentService {
     }
 
     private void writeBackAuthors(String ean, JSONArray jsonArray) throws JSONException {
-        ContentValues values= new ContentValues();
+        ContentValues values;
         for (int i = 0; i < jsonArray.length(); i++) {
+            values= new ContentValues();
             values.put(AlexandriaContract.AuthorEntry._ID, ean);
             values.put(AlexandriaContract.AuthorEntry.AUTHOR, jsonArray.getString(i));
             getContentResolver().insert(AlexandriaContract.AuthorEntry.CONTENT_URI, values);
-            values= new ContentValues();
         }
     }
 
     private void writeBackCategories(String ean, JSONArray jsonArray) throws JSONException {
-        ContentValues values= new ContentValues();
+        ContentValues values;
         for (int i = 0; i < jsonArray.length(); i++) {
+            values= new ContentValues();
             values.put(AlexandriaContract.CategoryEntry._ID, ean);
             values.put(AlexandriaContract.CategoryEntry.CATEGORY, jsonArray.getString(i));
             getContentResolver().insert(AlexandriaContract.CategoryEntry.CONTENT_URI, values);
-            values= new ContentValues();
         }
     }
  }

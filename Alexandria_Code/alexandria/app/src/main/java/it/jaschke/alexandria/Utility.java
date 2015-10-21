@@ -15,6 +15,7 @@ public class Utility {
      * @param c Context used to get the ConnectivityManager
      * @return true if the network is available
      */
+    //TODO: Actually use this.
     static public boolean isNetworkAvailable(Context c) {
         ConnectivityManager cm =
                 (ConnectivityManager)c.getSystemService(Context.CONNECTIVITY_SERVICE);
