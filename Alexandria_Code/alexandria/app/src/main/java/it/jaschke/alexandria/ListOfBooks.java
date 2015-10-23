@@ -16,7 +16,6 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 
 import it.jaschke.alexandria.api.BookListAdapter;
-import it.jaschke.alexandria.api.Callback;
 import it.jaschke.alexandria.data.AlexandriaContract;
 
 
@@ -29,6 +28,10 @@ public class ListOfBooks extends Fragment implements LoaderManager.LoaderCallbac
     private EditText searchText;
 
     private final int LOADER_ID = 10;
+
+    public interface Callback {
+        public void onItemSelected(String ean);
+    }
 
     public ListOfBooks() {
     }
