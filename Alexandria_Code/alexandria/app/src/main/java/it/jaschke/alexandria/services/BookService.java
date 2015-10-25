@@ -3,7 +3,9 @@ package it.jaschke.alexandria.services;
 import android.app.IntentService;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
+import android.support.annotation.IntDef;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -15,6 +17,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -29,6 +33,7 @@ import it.jaschke.alexandria.data.AlexandriaContract;
  * <p/>
  */
 public class BookService extends IntentService {
+    //TODO: Error cases for server
 
     private final String LOG_TAG = BookService.class.getSimpleName();
 
@@ -36,6 +41,16 @@ public class BookService extends IntentService {
     public static final String DELETE_BOOK = "it.jaschke.alexandria.services.action.DELETE_BOOK";
 
     public static final String EAN = "it.jaschke.alexandria.services.extra.EAN";
+
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({BOOK_STATUS_OK, BOOK_STATUS_SERVER_DOWN, BOOK_STATUS_SERVER_INVALID, BOOK_STATUS_UNKNOWN, BOOK_STATUS_INVALID})
+    public @interface BookStatus{}
+
+    public static final int BOOK_STATUS_OK = 0;
+    public static final int BOOK_STATUS_SERVER_DOWN = 1;
+    public static final int BOOK_STATUS_SERVER_INVALID =2;
+    public static final int BOOK_STATUS_UNKNOWN = 3;
+    public static final int BOOK_STATUS_INVALID = 4;
 
     public BookService() {
         super("Alexandria");
@@ -73,21 +88,21 @@ public class BookService extends IntentService {
         if(ean.length()!=13){
             return;
         }
+//TODO: Determine necessity. Implement checker for existing books
+        Cursor bookEntry = getContentResolver().query(
+                AlexandriaContract.BookEntry.buildBookUri(Long.parseLong(ean)),
+                null, // leaving "columns" null just returns all the columns.
+                null, // cols for "where" clause
+                null, // values for "where" clause
+                null  // sort order
+        );
 
-//        Cursor bookEntry = getContentResolver().query(
-//                AlexandriaContract.BookEntry.buildBookUri(Long.parseLong(ean)),
-//                null, // leaving "columns" null just returns all the columns.
-//                null, // cols for "where" clause
-//                null, // values for "where" clause
-//                null  // sort order
-//        );
-//
-//        if(bookEntry.getCount()>0){
-//            bookEntry.close();
-//            return;
-//        }
-//
-//        bookEntry.close();
+        if(bookEntry.getCount()>0){
+            bookEntry.close();
+            return;
+        }
+
+        bookEntry.close();
 
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
@@ -128,7 +143,7 @@ public class BookService extends IntentService {
             bookJsonString = buffer.toString();
             getBookDataFromJson(bookJsonString, ean);
         } catch (IOException e) {
-            Log.e(LOG_TAG, "Error ", e);
+            Log.e(LOG_TAG, e.getMessage(), e);
         } catch(JSONException e){
             Log.e(LOG_TAG, e.getMessage(), e);
             e.printStackTrace();
@@ -169,6 +184,7 @@ public class BookService extends IntentService {
             if(bookJson.has(ITEMS)){
                 bookArray = bookJson.getJSONArray(ITEMS);
             }else{
+                //TODO: Move to utility. Server error cases:Determine JSON response
                 Intent messageIntent = new Intent(MainActivity.MESSAGE_EVENT);
                 messageIntent.putExtra(MainActivity.MESSAGE_KEY,getResources().getString(R.string.not_found));
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(messageIntent);

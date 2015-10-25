@@ -12,22 +12,18 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import com.google.android.gms.common.api.CommonStatusCodes;
-import com.google.android.gms.vision.barcode.Barcode;
-
-import it.jaschke.alexandria.barcode.BarcodeCaptureActivity;
-
 
 public class MainActivity extends ActionBarActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks,
-        ListOfBooks.Callback,
-        AddBook.Callback{
+        ListOfBooks.Callback
+//        ,AddBook.Callback
+{
+    //TODO: Check for Google Play Services
     public static final String LOG_TAG = MainActivity.class.getSimpleName();
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -43,7 +39,7 @@ public class MainActivity extends ActionBarActivity
 
     public static final String MESSAGE_EVENT = "MESSAGE_EVENT";
     public static final String MESSAGE_KEY = "MESSAGE_EXTRA";
-    private static final int RC_BARCODE_CAPTURE = 9001;
+//    private static final int RC_BARCODE_CAPTURE = 9001;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -159,14 +155,14 @@ public class MainActivity extends ActionBarActivity
 
     }
 
-    @Override
-    public void onClickScan() {
-        Intent intent = new Intent(this, BarcodeCaptureActivity.class);
-        intent.putExtra(BarcodeCaptureActivity.AutoFocus, true);
-        intent.putExtra(BarcodeCaptureActivity.UseFlash, false);
-
-        startActivityForResult(intent, RC_BARCODE_CAPTURE);
-    }
+//    @Override
+//    public void onClickScan() {
+//        Intent intent = new Intent(this, BarcodeCaptureActivity.class);
+//        intent.putExtra(BarcodeCaptureActivity.AutoFocus, true);
+//        intent.putExtra(BarcodeCaptureActivity.UseFlash, false);
+//
+//        startActivityForResult(intent, RC_BARCODE_CAPTURE);
+//    }
 
     private class MessageReciever extends BroadcastReceiver {
         @Override
@@ -195,29 +191,29 @@ public class MainActivity extends ActionBarActivity
         super.onBackPressed();
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == RC_BARCODE_CAPTURE) {
-            if (resultCode == CommonStatusCodes.SUCCESS) {
-                if (data != null) {
-                    Barcode barcode = data.getParcelableExtra(BarcodeCaptureActivity.BarcodeObject);
-//                    statusMessage.setText(R.string.barcode_success);
-//                    barcodeValue.setText(barcode.displayValue);
-                    Toast.makeText(this, barcode.displayValue , Toast.LENGTH_SHORT).show();
-                    Log.d(LOG_TAG, "Barcode read: " + barcode.displayValue);
-                } else {
-//                    statusMessage.setText(R.string.barcode_failure);
-                    Log.d(LOG_TAG, "No barcode captured, intent data is null");
-                }
-            } else {
-//                statusMessage.setText(String.format(getString(R.string.barcode_error),
+//    @Override
+//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        if (requestCode == RC_BARCODE_CAPTURE) {
+//            if (resultCode == CommonStatusCodes.SUCCESS) {
+//                if (data != null) {
+//                    Barcode barcode = data.getParcelableExtra(BarcodeCaptureActivity.BarcodeObject);
+////                    statusMessage.setText(R.string.barcode_success);
+////                    barcodeValue.setText(barcode.displayValue);
+//                    Toast.makeText(this, barcode.displayValue , Toast.LENGTH_SHORT).show();
+//                    Log.d(LOG_TAG, "Barcode read: " + barcode.displayValue);
+//                } else {
+////                    statusMessage.setText(R.string.barcode_failure);
+//                    Log.d(LOG_TAG, "No barcode captured, intent data is null");
+//                }
+//            } else {
+////                statusMessage.setText(String.format(getString(R.string.barcode_error),
+////                        CommonStatusCodes.getStatusCodeString(resultCode)));
+//                Log.d(LOG_TAG, String.format(getString(R.string.barcode_error),
 //                        CommonStatusCodes.getStatusCodeString(resultCode)));
-                Log.d(LOG_TAG, String.format(getString(R.string.barcode_error),
-                        CommonStatusCodes.getStatusCodeString(resultCode)));
-            }
-        }
-        else {
-            super.onActivityResult(requestCode, resultCode, data);
-        }
-    }
+//            }
+//        }
+//        else {
+//            super.onActivityResult(requestCode, resultCode, data);
+//        }
+//    }
 }
