@@ -43,14 +43,13 @@ public class BookService extends IntentService {
     public static final String EAN = "it.jaschke.alexandria.services.extra.EAN";
 
     @Retention(RetentionPolicy.SOURCE)
-    @IntDef({BOOK_STATUS_OK, BOOK_STATUS_SERVER_DOWN, BOOK_STATUS_SERVER_INVALID, BOOK_STATUS_UNKNOWN, BOOK_STATUS_INVALID})
+    @IntDef({BOOK_STATUS_OK, BOOK_STATUS_SERVER_DOWN, BOOK_STATUS_SERVER_INVALID,BOOK_STATUS_INVALID})
     public @interface BookStatus{}
 
-    public static final int BOOK_STATUS_OK = 0;
-    public static final int BOOK_STATUS_SERVER_DOWN = 1;
-    public static final int BOOK_STATUS_SERVER_INVALID =2;
-    public static final int BOOK_STATUS_UNKNOWN = 3;
-    public static final int BOOK_STATUS_INVALID = 4;
+    public static final int BOOK_STATUS_OK = 0; // Response is expected
+    public static final int BOOK_STATUS_SERVER_DOWN = 1; // No response from server
+    public static final int BOOK_STATUS_SERVER_INVALID = 2; //  Unexpected response from server
+    public static final int BOOK_STATUS_INVALID = 3; // No book found
 
     public BookService() {
         super("Alexandria");
@@ -88,7 +87,6 @@ public class BookService extends IntentService {
         if(ean.length()!=13){
             return;
         }
-//TODO: Determine necessity. Implement checker for existing books
         Cursor bookEntry = getContentResolver().query(
                 AlexandriaContract.BookEntry.buildBookUri(Long.parseLong(ean)),
                 null, // leaving "columns" null just returns all the columns.
@@ -107,9 +105,12 @@ public class BookService extends IntentService {
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
         String bookJsonString = null;
-
+        int errorCode = BOOK_STATUS_OK;
         try {
+
             final String FORECAST_BASE_URL = "https://www.googleapis.com/books/v1/volumes?";
+//            final String FORECAST_BASE_URL = "http://google.com/ping";
+
             final String QUERY_PARAM = "q";
 
             final String ISBN_PARAM = "isbn:" + ean;
@@ -144,9 +145,11 @@ public class BookService extends IntentService {
             getBookDataFromJson(bookJsonString, ean);
         } catch (IOException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
+            errorCode = BOOK_STATUS_SERVER_DOWN;
         } catch(JSONException e){
             Log.e(LOG_TAG, e.getMessage(), e);
             e.printStackTrace();
+            errorCode = BOOK_STATUS_SERVER_INVALID;
         }
         finally {
             if (urlConnection != null) {
@@ -159,6 +162,8 @@ public class BookService extends IntentService {
                     Log.e(LOG_TAG, "Error closing stream", e);
                 }
             }
+            if(errorCode != BOOK_STATUS_OK)
+            sendMessage(errorCode);
 
         }
 
@@ -177,6 +182,9 @@ public class BookService extends IntentService {
         final String CATEGORIES = "categories";
         final String IMG_URL_PATH = "imageLinks";
         final String IMG_URL = "thumbnail";
+        final String TOTAL_ITEMS = "totalItems";
+
+        final String ERROR = "error";
 
         try {
             JSONObject bookJson = new JSONObject(bookJsonString);
@@ -184,10 +192,17 @@ public class BookService extends IntentService {
             if(bookJson.has(ITEMS)){
                 bookArray = bookJson.getJSONArray(ITEMS);
             }else{
-                //TODO: Move to utility. Server error cases:Determine JSON response
-                Intent messageIntent = new Intent(MainActivity.MESSAGE_EVENT);
-                messageIntent.putExtra(MainActivity.MESSAGE_KEY,getResources().getString(R.string.not_found));
-                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(messageIntent);
+                /**
+                 * If there are changes in the API that would require an update or any other invalid response such as:
+                 * https://www.googleapis.com/books/v1/volumes?=isbn:9789622178021
+                 * */
+                if(bookJson.has(ERROR)){
+                    sendMessage(BOOK_STATUS_SERVER_INVALID);
+                }else if (bookJson.has(TOTAL_ITEMS) && bookJson.getInt(TOTAL_ITEMS) == 0){
+                    sendMessage(BOOK_STATUS_INVALID);
+                }else{
+                    sendMessage(BOOK_STATUS_SERVER_DOWN);
+                }
                 return;
             }
 
@@ -225,6 +240,25 @@ public class BookService extends IntentService {
         }
     }
 
+    private void sendMessage(@BookStatus int errorCode){
+        String message;
+        switch (errorCode){
+            case BOOK_STATUS_INVALID:
+                message = getResources().getString(R.string.not_found);
+                break;
+            case BOOK_STATUS_SERVER_INVALID:
+                message = getResources().getString(R.string.server_invalid);
+                break;
+            default: BOOK_STATUS_SERVER_DOWN:
+                message = getResources().getString(R.string.server_down);
+                break;
+        }
+        Log.v(LOG_TAG, message);
+        Intent messageIntent = new Intent(MainActivity.MESSAGE_EVENT);
+        messageIntent.putExtra(MainActivity.MESSAGE_KEY, message);
+        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(messageIntent);
+
+    }
     private void writeBackBook(String ean, String title, String subtitle, String desc, String imgUrl) {
         ContentValues values= new ContentValues();
         values.put(AlexandriaContract.BookEntry._ID, ean);
