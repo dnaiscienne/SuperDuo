@@ -29,6 +29,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:label="@string/title_activity_settings"
             android:name=".SettingsActivity"
@@ -37,11 +38,11 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
+        <!-- Prevent landscape view during barcode capture. -->
         <activity android:name=".barcode.BarcodeCaptureActivity"
-            android:label="Read Barcode"/>
-
-
-
+            android:label="Read Barcode"
+            android:screenOrientation="portrait"
+            android:configChanges="keyboardHidden|orientation"/>
         <provider
             android:name=".data.BookProvider"
             android:authorities="it.jaschke.alexandria"
