@@ -235,6 +235,7 @@ public class BookService extends IntentService {
             }
 
         } catch (JSONException e) {
+            sendMessage(BOOK_STATUS_SERVER_INVALID);
             Log.e(LOG_TAG, "Error ", e);
             e.printStackTrace();
         }
