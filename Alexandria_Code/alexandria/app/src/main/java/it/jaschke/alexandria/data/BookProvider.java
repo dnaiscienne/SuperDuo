@@ -8,7 +8,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
-import android.util.Log;
 
 /**
  * Created by saj on 24/12/14.
@@ -210,27 +209,29 @@ public class BookProvider extends ContentProvider {
         final SQLiteDatabase db = dbHelper.getWritableDatabase();
         final int match = uriMatcher.match(uri);
         Uri returnUri;
+        long _id;
         switch (match) {
             case BOOK: {
-                long _id = db.insert(AlexandriaContract.BookEntry.TABLE_NAME, null, values);
+                _id = db.insert(AlexandriaContract.BookEntry.TABLE_NAME, null, values);
                 if ( _id > 0 ){
                     returnUri = AlexandriaContract.BookEntry.buildBookUri(_id);
                 } else {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 }
-                getContext().getContentResolver().notifyChange(AlexandriaContract.BookEntry.buildFullBookUri(_id), null);
+//                getContext().getContentResolver().notifyChange(AlexandriaContract.BookEntry.buildFullBookUri(_id), null);
                 break;
             }
             case AUTHOR:{
-                long _id = db.insert(AlexandriaContract.AuthorEntry.TABLE_NAME, null, values);
+                _id = db.insert(AlexandriaContract.AuthorEntry.TABLE_NAME, null, values);
                 if ( _id > 0 )
                     returnUri = AlexandriaContract.AuthorEntry.buildAuthorUri(values.getAsLong("_id"));
-                else
+                else {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
+                }
                 break;
             }
             case CATEGORY: {
-                long _id = db.insert(AlexandriaContract.CategoryEntry.TABLE_NAME, null, values);
+                _id = db.insert(AlexandriaContract.CategoryEntry.TABLE_NAME, null, values);
                 if (_id > 0)
                     returnUri = AlexandriaContract.CategoryEntry.buildCategoryUri(values.getAsLong("_id"));
                 else
@@ -240,6 +241,8 @@ public class BookProvider extends ContentProvider {
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
+        // Moved here and changed the uri to the full book path since the only time an author or category gets inserted is when a book is
+        getContext().getContentResolver().notifyChange(AlexandriaContract.BookEntry.FULL_CONTENT_URI, null);
         return returnUri;
     }
 
