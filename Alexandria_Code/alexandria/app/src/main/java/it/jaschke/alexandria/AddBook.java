@@ -3,6 +3,7 @@ package it.jaschke.alexandria;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -54,9 +55,6 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
     private String mScanFormat = "Format:";
     private String mScanContents = "Contents:";
 
-    public interface Callback {
-        public void onClickScan();
-    }
     public AddBook(){
     }
 
@@ -103,42 +101,50 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
 
             @Override
             public void afterTextChanged(Editable s) {
-                String ean =s.toString();
+                String ean = s.toString();
                 //catch isbn10 numbers
-                if(ean.length()==10 && !ean.startsWith("978")){
-                    ean="978"+ean;
+                if (ean.length() == 10 && !ean.startsWith("978")) {
+                    ean = "978" + ean;
                 }
                 //notification for invalid isbn
-                else if(ean.length() > 10 && !ean.startsWith("978")){
+                else if (ean.length() > 10 && !ean.startsWith("978")) {
                     Toast.makeText(getActivity(), R.string.isbn_invalid, Toast.LENGTH_SHORT).show();
                     return;
                 }
-                if(ean.length()<13){
+                if (ean.length() < 13) {
                     clearFields();
                     return;
                 }
                 //Check for network connection.
-                if(Utility.isNetworkAvailable(getActivity())) {
+                if (Utility.isNetworkAvailable(getActivity())) {
                     //Once we have an ISBN, start a book intent
                     Intent bookIntent = new Intent(getActivity(), BookService.class);
                     bookIntent.putExtra(BookService.EAN, ean);
                     bookIntent.setAction(BookService.FETCH_BOOK);
                     getActivity().startService(bookIntent);
                     AddBook.this.restartLoader();
-                }
-                else{
+                } else {
                     Toast.makeText(getActivity(), R.string.no_internet, Toast.LENGTH_SHORT).show();
                 }
             }
         });
 
-        scanBookButton.setOnClickListener(this);
         saveBookButton.setOnClickListener(this);
         deleteBookButton.setOnClickListener(this);
 
         if(savedInstanceState!=null){
             ean.setText(savedInstanceState.getString(EAN_CONTENT));
             ean.setHint("");
+        }
+
+        PackageManager pm = getActivity().getPackageManager();
+
+        // Disable scanning functionality if device has no camera.
+        if (pm.hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
+            scanBookButton.setOnClickListener(this);
+        }
+        else{
+            scanBookButton.setVisibility(View.INVISIBLE);
         }
 
         return rootView;
