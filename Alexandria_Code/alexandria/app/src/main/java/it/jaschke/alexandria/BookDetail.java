@@ -8,19 +8,20 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.ShareActionProvider;
-import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+
 import it.jaschke.alexandria.data.AlexandriaContract;
 import it.jaschke.alexandria.services.BookService;
-import it.jaschke.alexandria.services.DownloadImage;
 
 
 public class BookDetail extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -28,6 +29,17 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
     public static final String EAN_KEY = "EAN";
     private final int LOADER_ID = 10;
     private View rootView;
+
+    private TextView descView;
+    private Button backButton;
+    private Button deleteBookButton;
+    private TextView titleView;
+    private TextView subtitleView;
+    private TextView authorView;
+    private ImageView coverView;
+    private TextView categoryView;
+    private View rightContainerView;
+
     private String ean;
     private String bookTitle;
     private ShareActionProvider shareActionProvider;
@@ -50,9 +62,19 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
             ean = arguments.getString(BookDetail.EAN_KEY);
             getLoaderManager().restartLoader(LOADER_ID, null, this);
         }
-
         rootView = inflater.inflate(R.layout.fragment_full_book, container, false);
-        rootView.findViewById(R.id.delete_button).setOnClickListener(new View.OnClickListener() {
+
+        deleteBookButton = (Button) rootView.findViewById(R.id.delete_button);
+        backButton = (Button) rootView.findViewById(R.id.backButton);
+        authorView = (TextView) rootView.findViewById(R.id.authors);
+        categoryView = (TextView) rootView.findViewById(R.id.categories);
+        descView = (TextView) rootView.findViewById(R.id.fullBookDesc);
+        subtitleView = (TextView) rootView.findViewById(R.id.fullBookSubTitle);
+        coverView = (ImageView) rootView.findViewById(R.id.fullBookCover);
+        titleView = (TextView) rootView.findViewById(R.id.fullBookTitle);
+        rightContainerView = rootView.findViewById(R.id.right_container);
+
+        deleteBookButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent bookIntent = new Intent(getActivity(), BookService.class);
@@ -93,36 +115,41 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
         }
 
         bookTitle = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.TITLE));
-        ((TextView) rootView.findViewById(R.id.fullBookTitle)).setText(bookTitle);
+        titleView.setText(bookTitle);
 
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
         shareIntent.setType("text/plain");
-        shareIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.share_text)+bookTitle);
-        //TODO: Error nullpointerexception
-        shareActionProvider.setShareIntent(shareIntent);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.share_text)+ bookTitle);
+        if (shareActionProvider != null){
+            shareActionProvider.setShareIntent(shareIntent);
 
+        }
         String bookSubTitle = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.SUBTITLE));
-        ((TextView) rootView.findViewById(R.id.fullBookSubTitle)).setText(bookSubTitle);
+        subtitleView.setText(bookSubTitle);
 
         String desc = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.DESC));
-        ((TextView) rootView.findViewById(R.id.fullBookDesc)).setText(desc);
+        descView.setText(desc);
 
         String authors = data.getString(data.getColumnIndex(AlexandriaContract.AuthorEntry.AUTHOR));
-        String[] authorsArr = authors.split(",");
-        ((TextView) rootView.findViewById(R.id.authors)).setLines(authorsArr.length);
-        ((TextView) rootView.findViewById(R.id.authors)).setText(authors.replace(",","\n"));
-        String imgUrl = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.IMAGE_URL));
-        if(Patterns.WEB_URL.matcher(imgUrl).matches()){
-            new DownloadImage((ImageView) rootView.findViewById(R.id.fullBookCover)).execute(imgUrl);
-            rootView.findViewById(R.id.fullBookCover).setVisibility(View.VISIBLE);
+        if (authors != null){
+            String[] authorsArr = authors.split(",");
+            authorView.setLines(authorsArr.length);
+            authorView.setText(authors.replace(",","\n"));
         }
 
-        String categories = data.getString(data.getColumnIndex(AlexandriaContract.CategoryEntry.CATEGORY));
-        ((TextView) rootView.findViewById(R.id.categories)).setText(categories);
+        String imgUrl = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.IMAGE_URL));
+        Glide.with(getActivity())
+                .load(imgUrl)
+                .error(R.drawable.placeholder)
+                .crossFade()
+                .into(coverView);
 
-        if(rootView.findViewById(R.id.right_container)!=null){
-            rootView.findViewById(R.id.backButton).setVisibility(View.INVISIBLE);
+        String categories = data.getString(data.getColumnIndex(AlexandriaContract.CategoryEntry.CATEGORY));
+        categoryView.setText(categories);
+
+        if(rightContainerView != null){
+            backButton.setVisibility(View.INVISIBLE);
         }
 
     }
@@ -135,7 +162,7 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
     @Override
     public void onPause() {
         super.onDestroyView();
-        if(MainActivity.IS_TABLET && rootView.findViewById(R.id.right_container)==null){
+        if(MainActivity.IS_TABLET && rightContainerView ==null){
             getActivity().getSupportFragmentManager().popBackStack();
         }
     }

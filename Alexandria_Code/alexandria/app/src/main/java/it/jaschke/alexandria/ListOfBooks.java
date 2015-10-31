@@ -43,21 +43,20 @@ public class ListOfBooks extends Fragment implements LoaderManager.LoaderCallbac
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    /**
-     * Commented out because unnecessary. Replaced with onActivityCreated().
-     */
-//        Cursor cursor = getActivity().getContentResolver().query(
-//                AlexandriaContract.BookEntry.CONTENT_URI,
-//                null, // leaving "columns" null just returns all the columns.
-//                null, // cols for "where" clause
-//                null, // values for "where" clause
-//                null  // sort order
-//        );
+
         bookListAdapter = new BookListAdapter(getActivity(), null, 0);
         View rootView = inflater.inflate(R.layout.fragment_list_of_books, container, false);
         searchText = (EditText) rootView.findViewById(R.id.searchText);
         searchButton = (ImageButton) rootView.findViewById(R.id.searchButton);
 
+        searchText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    Utility.hideSoftKeyboard(v, getActivity());
+                }
+            }
+        });
 
         searchButton.setOnClickListener(
                 new View.OnClickListener() {

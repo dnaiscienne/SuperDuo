@@ -47,10 +47,9 @@ public class BookListAdapter extends CursorAdapter {
         * Replaced AsyncTask with Glide. Should get rid of the MalformedURLException
         * */
         //        new DownloadImage(viewHolder.bookCover).execute(imgUrl);
-        // TODO: default image in case of failure
         Glide.with(context)
                 .load(imgUrl)
-//                .error()
+                .error(R.drawable.placeholder)
                 .crossFade()
                 .into(viewHolder.bookCover);
         String bookTitle = cursor.getString(cursor.getColumnIndex(AlexandriaContract.BookEntry.TITLE));

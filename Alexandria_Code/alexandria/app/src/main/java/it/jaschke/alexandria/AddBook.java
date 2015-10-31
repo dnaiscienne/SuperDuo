@@ -11,7 +11,6 @@ import android.support.v4.content.CursorLoader;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,14 +20,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.vision.barcode.Barcode;
 
 import it.jaschke.alexandria.barcode.BarcodeCaptureActivity;
 import it.jaschke.alexandria.data.AlexandriaContract;
 import it.jaschke.alexandria.services.BookService;
-import it.jaschke.alexandria.services.DownloadImage;
-
 
 public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, View.OnClickListener {
     private static final String LOG_TAG = AddBook.class.getSimpleName();
@@ -81,9 +79,17 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
         titleView = (TextView) rootView.findViewById(R.id.bookTitle);
         subtitleView = (TextView) rootView.findViewById(R.id.bookSubTitle);
         authorView = (TextView) rootView.findViewById(R.id.authors);
-        coverView = (ImageView) rootView.findViewById(R.id.fullBookCover);
+        coverView = (ImageView) rootView.findViewById(R.id.bookCover);
         categoryView = (TextView) rootView.findViewById(R.id.categories);
 
+        ean.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    Utility.hideSoftKeyboard(v, getActivity());
+                }
+            }
+        });
         ean.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -146,19 +152,8 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
     public void onClick(View view) {
         switch(view.getId()){
             case R.id.scan_button:
-                // This is the callback method that the system will invoke when your button is
-                // clicked. You might do this by launching another app or by including the
-                //functionality directly in this app.
-                // Hint: Use a Try/Catch block to handle the Intent dispatch gracefully, if you
-                // are using an external app.
-                //when you're done, remove the toast below.
 
                 Context context = getActivity();
-//                CharSequence text = "This button should let you scan a book for its barcode!";
-//                int duration = Toast.LENGTH_SHORT;
-//                Toast toast = Toast.makeText(context, text, duration);
-//                toast.show();
-//                ((Callback) getActivity()).onClickScan();
                 Intent intent = new Intent(context, BarcodeCaptureActivity.class);
                 intent.putExtra(BarcodeCaptureActivity.AutoFocus, true);
                 intent.putExtra(BarcodeCaptureActivity.UseFlash, false);
@@ -209,31 +204,33 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
         }
 
         String bookTitle = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.TITLE));
-        ((TextView) rootView.findViewById(R.id.bookTitle)).setText(bookTitle);
+        titleView.setText(bookTitle);
 
         String bookSubTitle = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.SUBTITLE));
-        ((TextView) rootView.findViewById(R.id.bookSubTitle)).setText(bookSubTitle);
+        subtitleView.setText(bookSubTitle);
 
         String authors = data.getString(data.getColumnIndex(AlexandriaContract.AuthorEntry.AUTHOR));
-        //TODO: another nullpointerexception
+
         if (authors != null){
             String[] authorsArr = authors.split(",");
-            ((TextView) rootView.findViewById(R.id.authors)).setLines(authorsArr.length);
-            ((TextView) rootView.findViewById(R.id.authors)).setText(authors.replace(",","\n"));
+            authorView.setLines(authorsArr.length);
+            authorView.setText(authors.replace(",","\n"));
 
         }
         String imgUrl = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.IMAGE_URL));
-        //TODO: Replace with Glide
-        if(Patterns.WEB_URL.matcher(imgUrl).matches()){
-            new DownloadImage((ImageView) rootView.findViewById(R.id.bookCover)).execute(imgUrl);
-            rootView.findViewById(R.id.bookCover).setVisibility(View.VISIBLE);
-        }
+
+        //Replaced with Glide
+        Glide.with(getActivity())
+                .load(imgUrl)
+                .error(R.drawable.placeholder)
+                .crossFade()
+                .into(coverView);
 
         String categories = data.getString(data.getColumnIndex(AlexandriaContract.CategoryEntry.CATEGORY));
-        ((TextView) rootView.findViewById(R.id.categories)).setText(categories);
+        categoryView.setText(categories);
 
-        rootView.findViewById(R.id.save_button).setVisibility(View.VISIBLE);
-        rootView.findViewById(R.id.delete_button).setVisibility(View.VISIBLE);
+        saveBookButton.setVisibility(View.VISIBLE);
+        deleteBookButton.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -242,13 +239,13 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
     }
 
     private void clearFields(){
-        ((TextView) rootView.findViewById(R.id.bookTitle)).setText("");
-        ((TextView) rootView.findViewById(R.id.bookSubTitle)).setText("");
-        ((TextView) rootView.findViewById(R.id.authors)).setText("");
-        ((TextView) rootView.findViewById(R.id.categories)).setText("");
-        rootView.findViewById(R.id.bookCover).setVisibility(View.INVISIBLE);
-        rootView.findViewById(R.id.save_button).setVisibility(View.INVISIBLE);
-        rootView.findViewById(R.id.delete_button).setVisibility(View.INVISIBLE);
+        titleView.setText("");
+        subtitleView.setText("");
+        authorView.setText("");
+        categoryView.setText("");
+        coverView.setVisibility(View.INVISIBLE);
+        saveBookButton.setVisibility(View.INVISIBLE);
+        deleteBookButton.setVisibility(View.INVISIBLE);
     }
 
     @Override

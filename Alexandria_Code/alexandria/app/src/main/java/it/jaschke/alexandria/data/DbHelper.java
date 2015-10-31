@@ -10,7 +10,7 @@ import android.util.Log;
  */
 public class DbHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
     public static final String DATABASE_NAME = "alexandria.db";
 
     public DbHelper(Context context) {
@@ -33,13 +33,13 @@ public class DbHelper extends SQLiteOpenHelper {
                 AlexandriaContract.AuthorEntry._ID + " INTEGER," +
                 AlexandriaContract.AuthorEntry.AUTHOR + " TEXT," +
                 " FOREIGN KEY (" + AlexandriaContract.AuthorEntry._ID + ") REFERENCES " +
-                AlexandriaContract.BookEntry.TABLE_NAME + " (" + AlexandriaContract.BookEntry._ID + "))";
+                AlexandriaContract.BookEntry.TABLE_NAME + " (" + AlexandriaContract.BookEntry._ID + ") ON DELETE CASCADE)";
 
         final String SQL_CREATE_CATEGORY_TABLE = "CREATE TABLE " + AlexandriaContract.CategoryEntry.TABLE_NAME + " ("+
                 AlexandriaContract.CategoryEntry._ID + " INTEGER," +
                 AlexandriaContract.CategoryEntry.CATEGORY + " TEXT," +
                 " FOREIGN KEY (" + AlexandriaContract.CategoryEntry._ID + ") REFERENCES " +
-                AlexandriaContract.BookEntry.TABLE_NAME + " (" + AlexandriaContract.BookEntry._ID + "))";
+                AlexandriaContract.BookEntry.TABLE_NAME + " (" + AlexandriaContract.BookEntry._ID + ") ON DELETE CASCADE)";
 
 
         Log.d("sql-statments",SQL_CREATE_BOOK_TABLE);
@@ -50,6 +50,15 @@ public class DbHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_CREATE_AUTHOR_TABLE);
         db.execSQL(SQL_CREATE_CATEGORY_TABLE);
 
+    }
+
+    @Override
+    public void onOpen(SQLiteDatabase db) {
+        super.onOpen(db);
+        if (!db.isReadOnly()) {
+            // Enable foreign key constraints
+            db.execSQL("PRAGMA foreign_keys=ON;");
+        }
     }
 
     @Override

@@ -33,7 +33,6 @@ import it.jaschke.alexandria.data.AlexandriaContract;
  * <p/>
  */
 public class BookService extends IntentService {
-    //TODO: Error cases for server
 
     private final String LOG_TAG = BookService.class.getSimpleName();
 

@@ -10,7 +10,9 @@
         android:layout_height="fill_parent"
         android:layout_alignParentBottom="true"
         android:layout_alignParentTop="true"
-        android:layout_marginRight="6dip"
+        android:layout_marginRight="6dp"
+        android:maxHeight="60sp"
+        android:adjustViewBounds="true"
         android:contentDescription="@string/book_cover"
         android:src="@drawable/ic_launcher" />
 

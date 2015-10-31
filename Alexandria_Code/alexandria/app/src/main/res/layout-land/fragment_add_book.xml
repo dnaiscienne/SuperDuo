@@ -64,6 +64,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/bookCover"
+            android:maxHeight="90sp"
+            android:adjustViewBounds="true"
             android:contentDescription="@string/book_cover"
             android:minHeight="20dip"
             android:minWidth="20dip"
