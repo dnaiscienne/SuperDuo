@@ -217,6 +217,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
 
         String authors = data.getString(data.getColumnIndex(AlexandriaContract.AuthorEntry.AUTHOR));
 
+        //Prevents null pointer exception if the author is not yet available.
         if (authors != null){
             String[] authorsArr = authors.split(",");
             authorView.setLines(authorsArr.length);

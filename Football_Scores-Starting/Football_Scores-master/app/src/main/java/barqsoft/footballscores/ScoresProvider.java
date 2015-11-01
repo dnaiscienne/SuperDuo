@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.util.Log;
 
 /**
  * Created by yehya khaled on 2/25/2015.
@@ -157,6 +158,7 @@ public class ScoresProvider extends ContentProvider
                     db.endTransaction();
                 }
                 getContext().getContentResolver().notifyChange(uri,null);
+                Log.v("Insert", "Batch Insert");
                 return returncount;
             default:
                 return super.bulkInsert(uri,values);

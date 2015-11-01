@@ -1,9 +1,17 @@
 package barqsoft.footballscores;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.preference.PreferenceManager;
+
+import barqsoft.footballscores.service.myFetchService;
+
 /**
  * Created by yehya khaled on 3/3/2015.
  */
-public class Utilies
+public class Utility
 {
     public static final int SERIE_A = 357;
     public static final int PREMIER_LEGAUE = 354;
@@ -57,7 +65,7 @@ public class Utilies
     {
         if(home_goals < 0 || awaygoals < 0)
         {
-            return " - ";
+            return "No Scores Available";
         }
         else
         {
@@ -83,5 +91,39 @@ public class Utilies
             case "Stoke City FC" : return R.drawable.stoke_city;
             default: return R.drawable.no_icon;
         }
+    }
+
+    /**
+     * Returns true if the network is available or about to become available.
+     *
+     * @param c Context used to get the ConnectivityManager
+     * @return true if the network is available
+     */
+    static public boolean isNetworkAvailable(Context c) {
+        ConnectivityManager cm =
+                (ConnectivityManager)c.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+    }
+
+    /**
+     *
+     * @param c Context used to get the SharedPreferences
+     * @return the location status integer type
+     */
+    @SuppressWarnings("ResourceType")
+    static public @myFetchService.ScoreStatus
+    int getScoreStatus(Context c){
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(c);
+        return sp.getInt(c.getString(R.string.pref_score_status_key), myFetchService.SCORE_STATUS_UNKNOWN);
+    }
+
+    static public void resetScoreStatus(Context c){
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(c);
+        SharedPreferences.Editor spe = sp.edit();
+        spe.putInt(c.getString(R.string.pref_score_status_key), myFetchService.SCORE_STATUS_UNKNOWN);
+        spe.apply();
     }
 }

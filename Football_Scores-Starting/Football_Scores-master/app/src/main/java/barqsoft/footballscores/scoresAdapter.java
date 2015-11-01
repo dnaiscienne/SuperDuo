@@ -45,16 +45,32 @@ public class scoresAdapter extends CursorAdapter
     public void bindView(View view, final Context context, Cursor cursor)
     {
         final ViewHolder mHolder = (ViewHolder) view.getTag();
-        mHolder.home_name.setText(cursor.getString(COL_HOME));
-        mHolder.away_name.setText(cursor.getString(COL_AWAY));
-        mHolder.date.setText(cursor.getString(COL_MATCHTIME));
-        mHolder.score.setText(Utilies.getScores(cursor.getInt(COL_HOME_GOALS),cursor.getInt(COL_AWAY_GOALS)));
+        String homeName = cursor.getString(COL_HOME);
+        mHolder.home_name.setText(homeName);
+        mHolder.home_name.setContentDescription(context.getString(R.string.a11y_home_team, homeName));
+
+        String awayName = cursor.getString(COL_AWAY);
+        mHolder.away_name.setText(awayName);
+        mHolder.away_name.setContentDescription(context.getString(R.string.a11y_away_team, awayName));
+
+        String matchTime = cursor.getString(COL_MATCHTIME);
+        mHolder.date.setText(matchTime);
+        mHolder.date.setText(context.getString(R.string.a11y_match_time, matchTime));
+
+        String homeScore = Integer.toString(cursor.getInt(COL_HOME_GOALS));
+        String awayScore = Integer.toString(cursor.getInt(COL_AWAY_GOALS));
+        String scores = Utility.getScores(cursor.getInt(COL_HOME_GOALS), cursor.getInt(COL_AWAY_GOALS));
+        mHolder.score.setText(scores);
+        mHolder.score.setContentDescription(context.getString(R.string.a11y_scores, homeScore, awayScore));
+
         mHolder.match_id = cursor.getDouble(COL_ID);
-        mHolder.home_crest.setImageResource(Utilies.getTeamCrestByTeamName(
+
+        mHolder.home_crest.setImageResource(Utility.getTeamCrestByTeamName(
                 cursor.getString(COL_HOME)));
-        mHolder.away_crest.setImageResource(Utilies.getTeamCrestByTeamName(
-                cursor.getString(COL_AWAY)
-        ));
+
+        mHolder.away_crest.setImageResource(Utility.getTeamCrestByTeamName(
+                cursor.getString(COL_AWAY)));
+
         //Log.v(FetchScoreTask.LOG_TAG,mHolder.home_name.getText() + " Vs. " + mHolder.away_name.getText() +" id " + String.valueOf(mHolder.match_id));
         //Log.v(FetchScoreTask.LOG_TAG,String.valueOf(detail_match_id));
         LayoutInflater vi = (LayoutInflater) context.getApplicationContext()
@@ -67,11 +83,19 @@ public class scoresAdapter extends CursorAdapter
 
             container.addView(v, 0, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT
                     , ViewGroup.LayoutParams.MATCH_PARENT));
-            TextView match_day = (TextView) v.findViewById(R.id.matchday_textview);
-            match_day.setText(Utilies.getMatchDay(cursor.getInt(COL_MATCHDAY),
-                    cursor.getInt(COL_LEAGUE)));
+            TextView match_day_view = (TextView) v.findViewById(R.id.matchday_textview);
+
+            String matchDay = Utility.getMatchDay(cursor.getInt(COL_MATCHDAY),
+                    cursor.getInt(COL_LEAGUE));
+            match_day_view.setText(matchDay);
+            match_day_view.setContentDescription(matchDay);
+
+
             TextView league = (TextView) v.findViewById(R.id.league_textview);
-            league.setText(Utilies.getLeague(cursor.getInt(COL_LEAGUE)));
+            String leagueName  = Utility.getLeague(cursor.getInt(COL_LEAGUE));
+            league.setText(leagueName);
+            league.setContentDescription(leagueName);
+            
             Button share_button = (Button) v.findViewById(R.id.share_button);
             share_button.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -79,7 +103,7 @@ public class scoresAdapter extends CursorAdapter
                 {
                     //add Share Action
                     context.startActivity(createShareForecastIntent(mHolder.home_name.getText()+" "
-                    +mHolder.score.getText()+" "+mHolder.away_name.getText() + " "));
+                    + mHolder.score.getText()+" "+ mHolder.away_name.getText() + " "));
                 }
             });
         }

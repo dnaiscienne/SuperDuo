@@ -4,7 +4,10 @@ import android.app.IntentService;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
+import android.preference.PreferenceManager;
+import android.support.annotation.IntDef;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -15,6 +18,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
@@ -36,21 +41,32 @@ public class myFetchService extends IntentService
         super("myFetchService");
     }
 
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({SCORE_STATUS_OK, SCORE_STATUS_SERVER_DOWN, SCORE_STATUS_SERVER_INVALID,  SCORE_STATUS_UNKNOWN, SCORE_STATUS_INVALID})
+    public @interface ScoreStatus {}
+
+    public static final int SCORE_STATUS_OK = 0;
+    public static final int SCORE_STATUS_SERVER_DOWN = 1;
+    public static final int SCORE_STATUS_SERVER_INVALID = 2;
+    public static final int SCORE_STATUS_UNKNOWN = 3;
+    public static final int SCORE_STATUS_INVALID = 4;
+
     @Override
     protected void onHandleIntent(Intent intent)
     {
-        getData("n2");
         getData("p2");
-
+        getData("n2");
+        Log.v("OnHandleIntent", "Handling intent");
         return;
     }
 
     private void getData (String timeFrame)
     {
+        Log.v("getData", timeFrame);
         //Creating fetch URL
-        final String BASE_URL = "http://api.football-data.org/alpha/fixtures"; //Base URL
+        final String BASE_URL = "http://api.football-data.org/alpha/fixture"; //Base URL
         final String QUERY_TIME_FRAME = "timeFrame"; //Time Frame parameter to determine days
-        //final String QUERY_MATCH_DAY = "matchday";
+        //final String QUERY_MATCH_DAY = "matchda y";
 
         Uri fetch_build = Uri.parse(BASE_URL).buildUpon().
                 appendQueryParameter(QUERY_TIME_FRAME, timeFrame).build();
@@ -63,7 +79,7 @@ public class myFetchService extends IntentService
             URL fetch = new URL(fetch_build.toString());
             m_connection = (HttpURLConnection) fetch.openConnection();
             m_connection.setRequestMethod("GET");
-            m_connection.addRequestProperty("X-Auth-Token",getString(R.string.api_key));
+            m_connection.addRequestProperty("X-Auth-Token", getString(R.string.api_key));
             m_connection.connect();
 
             // Read the input stream into a String
@@ -90,7 +106,8 @@ public class myFetchService extends IntentService
         }
         catch (Exception e)
         {
-            Log.e(LOG_TAG,"Exception here" + e.getMessage());
+            Log.e(LOG_TAG,"Exception here " + e.getMessage());
+            setScoreStatus(this, SCORE_STATUS_SERVER_DOWN);
         }
         finally {
             if(m_connection != null)
@@ -129,6 +146,7 @@ public class myFetchService extends IntentService
         catch(Exception e)
         {
             Log.e(LOG_TAG,e.getMessage());
+            setScoreStatus(this, SCORE_STATUS_SERVER_INVALID);
         }
     }
     private void processJSONdata (String JSONdata,Context mContext, boolean isReal)
@@ -163,6 +181,8 @@ public class myFetchService extends IntentService
         final String AWAY_GOALS = "goalsAwayTeam";
         final String MATCH_DAY = "matchday";
 
+        final String ERROR = "error";
+
         //Match data
         String League = null;
         String mDate = null;
@@ -176,6 +196,11 @@ public class myFetchService extends IntentService
 
 
         try {
+            JSONObject jsonObject = new JSONObject(JSONdata);
+            if(jsonObject.has(ERROR)){
+                setScoreStatus(this, SCORE_STATUS_INVALID);
+                return;
+            }
             JSONArray matches = new JSONObject(JSONdata).getJSONArray(FIXTURES);
 
 
@@ -264,14 +289,31 @@ public class myFetchService extends IntentService
             values.toArray(insert_data);
             inserted_data = mContext.getContentResolver().bulkInsert(
                     DatabaseContract.BASE_CONTENT_URI,insert_data);
+            if (inserted_data > 0){
+                setScoreStatus(this, SCORE_STATUS_OK);
+            }
 
             //Log.v(LOG_TAG,"Succesfully Inserted : " + String.valueOf(inserted_data));
         }
         catch (JSONException e)
         {
             Log.e(LOG_TAG,e.getMessage());
+            setScoreStatus(this, SCORE_STATUS_SERVER_INVALID);
         }
 
+    }
+    /**
+     * Sets the location status into shared preference.  This function should not be called from
+     * the UI thread because it uses commit to write to the shared preferences.
+     * @param c Context to get the PreferenceManager from.
+     * @param scoreStatus The IntDef value to set
+     */
+    static private void setScoreStatus(Context c, @ScoreStatus int scoreStatus){
+        Log.v("PrefEditor", "Editing Pref");
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(c);
+        SharedPreferences.Editor spe = sp.edit();
+        spe.putInt(c.getString(R.string.pref_score_status_key), scoreStatus);
+        spe.commit();
     }
 }
 
