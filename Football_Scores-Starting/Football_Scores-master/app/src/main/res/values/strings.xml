@@ -43,6 +43,9 @@
     <string name="error_score_list">No Game Information Available</string>
     <string name="error_score_list_server_down">No game information available. The server is not returning data.</string>
     <string name="error_score_list_server_error">No game information available. The server is not returning valid data. Please check for an updated version of this app.</string>
+    <string name="error_score_list_error">No game information available. The server returned an error. Please contact support.</string>
     <string name="error_no_internet">No network connection available.</string>
+    <string name="no_game_info">No game information available.</string>
+    <string name="no_scores">none</string>
 
 </resources>

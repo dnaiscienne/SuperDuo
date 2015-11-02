@@ -59,7 +59,7 @@ public class scoresAdapter extends CursorAdapter
 
         String homeScore = Integer.toString(cursor.getInt(COL_HOME_GOALS));
         String awayScore = Integer.toString(cursor.getInt(COL_AWAY_GOALS));
-        String scores = Utility.getScores(cursor.getInt(COL_HOME_GOALS), cursor.getInt(COL_AWAY_GOALS));
+        String scores = Utility.getScores(context, cursor.getInt(COL_HOME_GOALS), cursor.getInt(COL_AWAY_GOALS));
         mHolder.score.setText(scores);
         mHolder.score.setContentDescription(context.getString(R.string.a11y_scores, homeScore, awayScore));
 

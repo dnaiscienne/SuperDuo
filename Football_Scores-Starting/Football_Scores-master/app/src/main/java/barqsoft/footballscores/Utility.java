@@ -61,11 +61,11 @@ public class Utility
         }
     }
 
-    public static String getScores(int home_goals,int awaygoals)
+    public static String getScores(Context context,int home_goals,int awaygoals)
     {
         if(home_goals < 0 || awaygoals < 0)
         {
-            return "No Scores Available";
+            return context.getString(R.string.no_scores);
         }
         else
         {
