@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:elevation="4dp"
-    android:background="@drawable/list_item">
+    android:background="@drawable/list_item"
+    android:id="@+id/widget_list_item">
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"

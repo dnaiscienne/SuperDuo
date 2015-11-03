@@ -1,21 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:padding="@dimen/widget_margin">
-    <ListView xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/widget_list_view"
+
+    <FrameLayout
+        android:id="@+id/widget"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/abc_action_bar_default_height_material">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:contentDescription="@string/app_name"
+            android:src="@drawable/ic_launcher" />
+    </FrameLayout>
+
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
-        android:loopViews="true" />
-    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/empty_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:textColor="#ffffff"
-        android:textStyle="bold"
-        android:text="@string/no_scores"
-        android:textSize="20sp" />
-</FrameLayout>
+        android:padding="@dimen/widget_margin">
+
+        <ListView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/widget_list_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:loopViews="true" />
+
+        <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/widget_empty_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="@string/no_scores"
+            android:textColor="#ffffff"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+    </FrameLayout>
+</LinearLayout>
