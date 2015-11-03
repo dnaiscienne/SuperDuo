@@ -13,6 +13,7 @@ import barqsoft.footballscores.service.myFetchService;
  */
 public class Utility
 {
+    //TODO: Strings to resource file.
     public static final int SERIE_A = 357;
     public static final int PREMIER_LEGAUE = 354;
     public static final int CHAMPIONS_LEAGUE = 362;
@@ -61,15 +62,15 @@ public class Utility
         }
     }
 
-    public static String getScores(Context context,int home_goals,int awaygoals)
+    public static String getScores(Context context,int home_goals,int away_goals)
     {
-        if(home_goals < 0 || awaygoals < 0)
+        if(home_goals < 0 || away_goals < 0)
         {
             return context.getString(R.string.no_scores);
         }
         else
         {
-            return String.valueOf(home_goals) + " - " + String.valueOf(awaygoals);
+            return context.getString(R.string.score_string, home_goals, away_goals);
         }
     }
 
