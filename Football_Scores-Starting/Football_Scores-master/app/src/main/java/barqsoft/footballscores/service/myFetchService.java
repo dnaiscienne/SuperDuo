@@ -36,6 +36,15 @@ import barqsoft.footballscores.R;
 public class myFetchService extends IntentService
 {
     public static final String LOG_TAG = "myFetchService";
+    public static final String ACTION_DATA_UPDATED =
+            "barqsoft.footballscores.ACTION_DATA_UPDATED";
+
+    // Interval at which to sync with the weather, in seconds.
+    // 60 seconds (1 minute) * 180 = 3 hours
+    public static final int SYNC_INTERVAL = 60 * 180;
+    public static final int SYNC_FLEXTIME = SYNC_INTERVAL/3;
+    private static final long DAY_IN_MILLIS = 1000 * 60 * 60 * 24;
+
     public myFetchService()
     {
         super("myFetchService");
@@ -64,7 +73,7 @@ public class myFetchService extends IntentService
     {
         Log.v("getData", timeFrame);
         //Creating fetch URL
-        final String BASE_URL = "http://api.football-data.org/alpha/fixture"; //Base URL
+        final String BASE_URL = "http://api.football-data.org/alpha/fixtures"; //Base URL
         final String QUERY_TIME_FRAME = "timeFrame"; //Time Frame parameter to determine days
         //final String QUERY_MATCH_DAY = "matchda y";
 
@@ -136,7 +145,7 @@ public class myFetchService extends IntentService
                     return;
                 }
 
-
+                Log.v("JSON DATA", matches.toString());
                 processJSONdata(JSON_data, getApplicationContext(), true);
             } else {
                 //Could not Connect
@@ -165,6 +174,9 @@ public class myFetchService extends IntentService
         final String PRIMERA_LIGA = "402";
         final String Bundesliga3 = "403";
         final String EREDIVISIE = "404";
+
+        //Don't know anything about football so:
+        final String OTHER = "405";
 
 
         final String SEASON_LINK = "http://api.football-data.org/alpha/soccerseasons/";
@@ -217,11 +229,13 @@ public class myFetchService extends IntentService
                 //add leagues here in order to have them be added to the DB.
                 // If you are finding no data in the app, check that this contains all the leagues.
                 // If it doesn't, that can cause an empty DB, bypassing the dummy data routine.
+                Log.v("League", League);
                 if(     League.equals(PREMIER_LEAGUE)      ||
                         League.equals(SERIE_A)             ||
                         League.equals(BUNDESLIGA1)         ||
                         League.equals(BUNDESLIGA2)         ||
-                        League.equals(PRIMERA_DIVISION)     )
+                        League.equals(PRIMERA_DIVISION)    ||
+                        League.equals(OTHER))
                 {
                     match_id = match_data.getJSONObject(LINKS).getJSONObject(SELF).
                             getString("href");
@@ -273,13 +287,13 @@ public class myFetchService extends IntentService
                     match_values.put(DatabaseContract.scores_table.MATCH_DAY,match_day);
                     //log spam
 
-                    //Log.v(LOG_TAG,match_id);
-                    //Log.v(LOG_TAG,mDate);
-                    //Log.v(LOG_TAG,mTime);
-                    //Log.v(LOG_TAG,Home);
-                    //Log.v(LOG_TAG,Away);
-                    //Log.v(LOG_TAG,Home_goals);
-                    //Log.v(LOG_TAG,Away_goals);
+                    Log.v(LOG_TAG,match_id);
+                    Log.v(LOG_TAG,mDate);
+                    Log.v(LOG_TAG,mTime);
+                    Log.v(LOG_TAG,Home);
+                    Log.v(LOG_TAG,Away);
+                    Log.v(LOG_TAG,Home_goals);
+                    Log.v(LOG_TAG,Away_goals);
 
                     values.add(match_values);
                 }
@@ -292,7 +306,7 @@ public class myFetchService extends IntentService
             if (inserted_data > 0){
                 setScoreStatus(this, SCORE_STATUS_OK);
             }
-
+            Log.v("Inserted Data", Integer.toString(inserted_data));
             //Log.v(LOG_TAG,"Succesfully Inserted : " + String.valueOf(inserted_data));
         }
         catch (JSONException e)

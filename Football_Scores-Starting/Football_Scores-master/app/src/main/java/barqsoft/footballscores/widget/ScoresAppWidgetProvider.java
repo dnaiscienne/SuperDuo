@@ -14,10 +14,12 @@ import android.widget.RemoteViews;
 
 import barqsoft.footballscores.MainActivity;
 import barqsoft.footballscores.R;
+import barqsoft.footballscores.service.myFetchService;
 
 /**
  * Created by D.C on 11/3/2015.
  */
+@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class ScoresAppWidgetProvider extends AppWidgetProvider {
 
     @Override
@@ -50,11 +52,11 @@ public class ScoresAppWidgetProvider extends AppWidgetProvider {
     @Override
     public void onReceive(@NonNull Context context, @NonNull Intent intent) {
         super.onReceive(context, intent);
-        if (SunshineSyncAdapter.ACTION_DATA_UPDATED.equals(intent.getAction())) {
+        if (myFetchService.ACTION_DATA_UPDATED.equals(intent.getAction())) {
             AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
             int[] appWidgetIds = appWidgetManager.getAppWidgetIds(
                     new ComponentName(context, getClass()));
-            appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.widget_list);
+            appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.widget_list_view);
         }
     }
 
