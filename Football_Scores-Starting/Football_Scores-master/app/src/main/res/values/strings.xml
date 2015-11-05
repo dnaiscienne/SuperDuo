@@ -35,6 +35,7 @@
     <string name="a11y_scores">Home Team Score: <xliff:g id="home_score">%1$s</xliff:g> Away Team Score: <xliff:g id="away_score">%2$s</xliff:g></string>
     <string name="a11y_home_team_crest">Home Team Crest: <xliff:g id="team">%1$s</xliff:g></string>
     <string name="a11y_away_team_crest">Away Team Crest: <xliff:g id="team">%1$s</xliff:g></string>
+    <string name="a11y_share_button">Share Button</string>
     <string name="score_string"><xliff:g id="score">%1$s</xliff:g> - <xliff:g id="score">%2$s</xliff:g></string>
 
 
