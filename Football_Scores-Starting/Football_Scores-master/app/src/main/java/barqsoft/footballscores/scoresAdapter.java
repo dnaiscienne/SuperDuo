@@ -83,7 +83,7 @@ public class scoresAdapter extends CursorAdapter
                     , ViewGroup.LayoutParams.MATCH_PARENT));
             TextView match_day_view = (TextView) v.findViewById(R.id.matchday_textview);
 
-            String matchDay = Utility.getMatchDay(cursor.getInt(COL_MATCHDAY),
+            String matchDay = Utility.getMatchDay(context, cursor.getInt(COL_MATCHDAY),
                     cursor.getInt(COL_LEAGUE));
             match_day_view.setText(matchDay);
             match_day_view.setContentDescription(matchDay);

@@ -36,6 +36,8 @@
                 android:value="barqsoft.footballscores.MainActivity" />
         </activity>
         <service android:name=".service.myFetchService" />
+        <receiver android:name=".service.myFetchService$AlarmReceiver" android:enabled="true"/>
+
         <!-- Scores Widget -->
         <receiver android:name=".widget.ScoresAppWidgetProvider">
             <intent-filter>

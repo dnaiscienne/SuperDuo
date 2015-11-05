@@ -77,7 +77,6 @@ public class ScoresWidgetRemoteViewsService extends RemoteViewsService {
                 }
                 RemoteViews views = new RemoteViews(getPackageName(),
                         R.layout.widget_scores_list_item);
-                int matchId = data.getInt(data.getColumnIndex(DatabaseContract.scores_table.MATCH_ID));
 
                 String homeName = data.getString(data.getColumnIndex(DatabaseContract.scores_table.HOME_COL));
                 String awayName = data.getString(data.getColumnIndex(DatabaseContract.scores_table.AWAY_COL));

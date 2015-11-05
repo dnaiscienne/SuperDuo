@@ -16,7 +16,7 @@
     <string name="premierleague">Premier League</string>
     <string name="primeradivison">Primera Division</string>
     <string name="seriaa">Serie A</string>
-    <string name="matchday_text">Match day</string>
+    <string name="matchday_text">Match day <xliff:g id="team">%1$s</xliff:g></string>
     <string name="group_stage_text">Group stages</string>
     <string name="first_knockout_round">First knockout round</string>
     <string name="quarter_final">Quarter Final</string>
@@ -48,5 +48,7 @@
     <string name="error_no_internet">No network connection available.</string>
     <string name="no_game_info">No game information available.</string>
     <string name="no_scores">none</string>
+
+    <string name="group_stages_match">Group Stages, Matchday : 6</string>
 
 </resources>

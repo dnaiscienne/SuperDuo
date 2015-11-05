@@ -31,34 +31,34 @@ public class Utility
             default: return "Not known League Please report";
         }
     }
-    public static String getMatchDay(int match_day,int league_num)
+    public static String getMatchDay(Context context, int match_day,int league_num)
     {
         if(league_num == CHAMPIONS_LEAGUE)
         {
             if (match_day <= 6)
             {
-                return "Group Stages, Matchday : 6";
+                return context.getString(R.string.group_stages_match);
             }
             else if(match_day == 7 || match_day == 8)
             {
-                return "First Knockout round";
+                return context.getString(R.string.first_knockout_round);
             }
             else if(match_day == 9 || match_day == 10)
             {
-                return "QuarterFinal";
+                return context.getString(R.string.quarter_final);
             }
             else if(match_day == 11 || match_day == 12)
             {
-                return "SemiFinal";
+                return context.getString(R.string.semi_final);
             }
             else
             {
-                return "Final";
+                return context.getString(R.string.final_text);
             }
         }
         else
         {
-            return "Matchday : " + String.valueOf(match_day);
+            return context.getString(R.string.matchday_text, match_day);
         }
     }
 
@@ -74,6 +74,7 @@ public class Utility
         }
     }
 
+//    Did not include in strings.xml because used as condition in code.
     public static int getTeamCrestByTeamName (String teamname)
     {
         if (teamname==null){return R.drawable.no_icon;}

@@ -1,6 +1,7 @@
 package barqsoft.footballscores.service;
 
 import android.app.IntentService;
+import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -38,12 +39,6 @@ public class myFetchService extends IntentService
     public static final String LOG_TAG = "myFetchService";
     public static final String ACTION_DATA_UPDATED =
             "barqsoft.footballscores.ACTION_DATA_UPDATED";
-
-    // Interval at which to sync with the weather, in seconds.
-    // 60 seconds (1 minute) * 180 = 3 hours
-    public static final int SYNC_INTERVAL = 60 * 180;
-    public static final int SYNC_FLEXTIME = SYNC_INTERVAL/3;
-    private static final long DAY_IN_MILLIS = 1000 * 60 * 60 * 24;
 
     public myFetchService()
     {
@@ -287,13 +282,13 @@ public class myFetchService extends IntentService
                     match_values.put(DatabaseContract.scores_table.MATCH_DAY,match_day);
                     //log spam
 
-                    Log.v(LOG_TAG,match_id);
-                    Log.v(LOG_TAG,mDate);
-                    Log.v(LOG_TAG,mTime);
-                    Log.v(LOG_TAG,Home);
-                    Log.v(LOG_TAG,Away);
-                    Log.v(LOG_TAG,Home_goals);
-                    Log.v(LOG_TAG,Away_goals);
+//                    Log.v(LOG_TAG,match_id);
+//                    Log.v(LOG_TAG,mDate);
+//                    Log.v(LOG_TAG,mTime);
+//                    Log.v(LOG_TAG,Home);
+//                    Log.v(LOG_TAG,Away);
+//                    Log.v(LOG_TAG,Home_goals);
+//                    Log.v(LOG_TAG,Away_goals);
 
                     values.add(match_values);
                 }
@@ -305,6 +300,7 @@ public class myFetchService extends IntentService
                     DatabaseContract.BASE_CONTENT_URI,insert_data);
             if (inserted_data > 0){
                 setScoreStatus(this, SCORE_STATUS_OK);
+                updateWidgets(this);
             }
             Log.v("Inserted Data", Integer.toString(inserted_data));
             //Log.v(LOG_TAG,"Succesfully Inserted : " + String.valueOf(inserted_data));
@@ -328,6 +324,22 @@ public class myFetchService extends IntentService
         SharedPreferences.Editor spe = sp.edit();
         spe.putInt(c.getString(R.string.pref_score_status_key), scoreStatus);
         spe.commit();
+    }
+
+    private void updateWidgets(Context context) {
+        Intent dataUpdatedIntent = new Intent(ACTION_DATA_UPDATED)
+                .setPackage(context.getPackageName());
+        context.sendBroadcast(dataUpdatedIntent);
+    }
+
+    public static class AlarmReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Intent sendIntent = new Intent(context, myFetchService.class);
+            context.startService(sendIntent);
+
+        }
     }
 }
 
