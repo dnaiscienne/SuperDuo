@@ -36,7 +36,7 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:text="@string/no_scores"
-            android:textColor="#ffffff"
+            android:textColor="@color/white"
             android:textSize="20sp"
             android:textStyle="bold" />
     </FrameLayout>

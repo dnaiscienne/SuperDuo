@@ -6,7 +6,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
 
-import barqsoft.footballscores.service.myFetchService;
+import barqsoft.footballscores.service.FetchScoresService;
 
 /**
  * Created by yehya khaled on 3/3/2015.
@@ -116,16 +116,16 @@ public class Utility
      * @return the location status integer type
      */
     @SuppressWarnings("ResourceType")
-    static public @myFetchService.ScoreStatus
+    static public @FetchScoresService.ScoreStatus
     int getScoreStatus(Context c){
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(c);
-        return sp.getInt(c.getString(R.string.pref_score_status_key), myFetchService.SCORE_STATUS_UNKNOWN);
+        return sp.getInt(c.getString(R.string.pref_score_status_key), FetchScoresService.SCORE_STATUS_UNKNOWN);
     }
 
     static public void resetScoreStatus(Context c){
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(c);
         SharedPreferences.Editor spe = sp.edit();
-        spe.putInt(c.getString(R.string.pref_score_status_key), myFetchService.SCORE_STATUS_UNKNOWN);
+        spe.putInt(c.getString(R.string.pref_score_status_key), FetchScoresService.SCORE_STATUS_UNKNOWN);
         spe.apply();
     }
 }

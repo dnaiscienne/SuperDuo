@@ -29,7 +29,7 @@ public class MainScreenFragment extends Fragment implements LoaderManager.Loader
 //  Moved to PagerFragment to reduce unnecessary calls
 //    private void update_scores()
 //    {
-//        Intent service_start = new Intent(getActivity(), myFetchService.class);
+//        Intent service_start = new Intent(getActivity(), FetchScoresService.class);
 //        getActivity().startService(service_start);
 //    }
     public void setFragmentDate(String date)

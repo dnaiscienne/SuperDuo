@@ -31,7 +31,6 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
     private View rootView;
 
     private TextView descView;
-    private Button backButton;
     private Button deleteBookButton;
     private TextView titleView;
     private TextView subtitleView;
@@ -65,7 +64,6 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
         rootView = inflater.inflate(R.layout.fragment_full_book, container, false);
 
         deleteBookButton = (Button) rootView.findViewById(R.id.delete_button);
-        backButton = (Button) rootView.findViewById(R.id.backButton);
         authorView = (TextView) rootView.findViewById(R.id.authors);
         categoryView = (TextView) rootView.findViewById(R.id.categories);
         descView = (TextView) rootView.findViewById(R.id.fullBookDesc);
@@ -148,9 +146,6 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
         String categories = data.getString(data.getColumnIndex(AlexandriaContract.CategoryEntry.CATEGORY));
         categoryView.setText(categories);
 
-        if(rightContainerView != null){
-            backButton.setVisibility(View.INVISIBLE);
-        }
 
     }
 

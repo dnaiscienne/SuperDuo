@@ -23,7 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-import barqsoft.footballscores.service.myFetchService;
+import barqsoft.footballscores.service.FetchScoresService;
 
 /**
  * Created by yehya khaled on 2/27/2015.
@@ -62,7 +62,7 @@ public class PagerFragment extends Fragment implements SharedPreferences.OnShare
 
     private void update_scores()
     {
-        Intent alarmIntent = new Intent(getActivity(), myFetchService.AlarmReceiver.class);
+        Intent alarmIntent = new Intent(getActivity(), FetchScoresService.AlarmReceiver.class);
         PendingIntent pi = PendingIntent.getBroadcast(getActivity(), 0,alarmIntent,PendingIntent.FLAG_ONE_SHOT);//getBroadcast(context, 0, i, 0);
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
@@ -147,17 +147,17 @@ public class PagerFragment extends Fragment implements SharedPreferences.OnShare
         if (key.equals(getString(R.string.pref_score_status_key))) {
             int message = 0;
             Log.v("Preference Change", key + " inside " + Utility.getScoreStatus(getActivity()));
-            @myFetchService.ScoreStatus int scoreStatus = Utility.getScoreStatus(getActivity());
+            @FetchScoresService.ScoreStatus int scoreStatus = Utility.getScoreStatus(getActivity());
             switch (scoreStatus) {
-                case myFetchService.SCORE_STATUS_OK:
+                case FetchScoresService.SCORE_STATUS_OK:
                     return;
-                case myFetchService.SCORE_STATUS_SERVER_DOWN:
+                case FetchScoresService.SCORE_STATUS_SERVER_DOWN:
                     message = R.string.error_score_list_server_down;
                     break;
-                case myFetchService.SCORE_STATUS_SERVER_INVALID:
+                case FetchScoresService.SCORE_STATUS_SERVER_INVALID:
                     message = R.string.error_score_list_server_error;
                     break;
-                case myFetchService.SCORE_STATUS_INVALID:
+                case FetchScoresService.SCORE_STATUS_INVALID:
                     message = R.string.error_score_list_server_error;
                     break;
                 default:

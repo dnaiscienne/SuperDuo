@@ -34,15 +34,15 @@ import barqsoft.footballscores.R;
 /**
  * Created by yehya khaled on 3/2/2015.
  */
-public class myFetchService extends IntentService
+public class FetchScoresService extends IntentService
 {
-    public static final String LOG_TAG = "myFetchService";
+    public static final String LOG_TAG = "FetchScoresService";
     public static final String ACTION_DATA_UPDATED =
             "barqsoft.footballscores.ACTION_DATA_UPDATED";
 
-    public myFetchService()
+    public FetchScoresService()
     {
-        super("myFetchService");
+        super("FetchScoresService");
     }
 
     @Retention(RetentionPolicy.SOURCE)
@@ -336,7 +336,7 @@ public class myFetchService extends IntentService
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            Intent sendIntent = new Intent(context, myFetchService.class);
+            Intent sendIntent = new Intent(context, FetchScoresService.class);
             context.startService(sendIntent);
 
         }
